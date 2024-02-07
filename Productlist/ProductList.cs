@@ -22,46 +22,40 @@ internal class ProductList
             {
                 break;
             }
+            else if(category.Length<1) 
+            {
+                ForegroundColor=ConsoleColor.Red;
+                WriteLine("The category can not be empty, the product will not be saved");
+                ResetColor();
+                continue;
+            }
             Write("ProductName: ");
             string name = ReadLine();
+            if (name.Length<1)
+            {
+                ForegroundColor = ConsoleColor.Red;
+                WriteLine("The productname can not be empty, the product will not be saved");
+                ResetColor();
+                continue;
+            }
             Write("Price: ");
             string price = ReadLine();
             int productPrice = 0;
-            if (Int32.TryParse(price, out productPrice))
-            {
-                Console.ForegroundColor=ConsoleColor.Green;
-                Products.Add(new Product(category, name, productPrice));
-                Console.WriteLine("The product was succesfully added.");
-                ResetColor();
-            }
-            else 
+            if (!Int32.TryParse(price, out productPrice)|| productPrice<1)
             {
                 ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"The price has to be an integer, {price} is not.  ");
+                WriteLine("The price has to be an integer and greater than 0");
                 ResetColor();
-                Console.WriteLine("Price: ");
-                price = ReadLine();
-                if (Int32.TryParse(price, out productPrice))
-                {
-                    ForegroundColor = ConsoleColor.Green;
-                    Products.Add(new Product(category, name, productPrice));
-                    Console.WriteLine("The product was succesfully added.");
-                    ResetColor();
-                }
-                else
-                {
-                    ForegroundColor = ConsoleColor.Red;
-                    Products.Add(new Product(category, name, productPrice));
-                    Console.WriteLine($"The price has to be an integer, {price} is not.  ");
-                    Console.WriteLine("The product is added with price=0, use change price in the menu to correct it.");
-                    ResetColor();
-                  
-                }
+                continue;
             }
+            Products.Add(new Product(category, name, productPrice));
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("The product was succesfully added.");
+            ResetColor();
 
 
         }
-        
+
     }
     public void ShowProducts()
     {
@@ -79,17 +73,18 @@ internal class ProductList
     }
     public void SearchProducts()
     {
+        List<Product> sortedProducts = sortList(Products);
         WriteLine("Enter product to search for: ");
         string productToSearchFor = ReadLine();
         int index = -1;
-        index=Products.FindIndex(product=>product.ProductName.Contains(productToSearchFor));
-        if (index < 0)
+        index=sortedProducts.FindIndex(product=>product.ProductName.Contains(productToSearchFor));
+        if (index < -1)
         {
             Console.WriteLine("The product was not found.");
         }
         else 
         {
-            List<Product> sortedProducts = sortList(Products);
+            
             ForegroundColor = ConsoleColor.Green;
             WriteLine("Category".PadRight(30) + "Product".PadRight(30) + "Price");
             ResetColor();
@@ -102,6 +97,7 @@ internal class ProductList
                 }
                 Console.WriteLine(PrintProduct(prod));
                 ResetColor();
+                line++;
             }
             ForegroundColor = ConsoleColor.Blue;
             WriteLine("".PadRight(30) + "Total amount:".PadRight(30) + Products.Sum(product => product.Price));
