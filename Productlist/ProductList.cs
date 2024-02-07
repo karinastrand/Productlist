@@ -27,8 +27,37 @@ internal class ProductList
             Write("Price: ");
             string price = ReadLine();
             int productPrice = 0;
-            Int32.TryParse(price, out productPrice);
-            Products.Add(new Product(category,name,productPrice));
+            if (Int32.TryParse(price, out productPrice))
+            {
+                Console.ForegroundColor=ConsoleColor.Green;
+                Products.Add(new Product(category, name, productPrice));
+                Console.WriteLine("The product was succesfully added.");
+                ResetColor();
+            }
+            else 
+            {
+                ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"The price has to be an integer, {price} is not.  ");
+                ResetColor();
+                Console.WriteLine("Price: ");
+                price = ReadLine();
+                if (Int32.TryParse(price, out productPrice))
+                {
+                    ForegroundColor = ConsoleColor.Green;
+                    Products.Add(new Product(category, name, productPrice));
+                    Console.WriteLine("The product was succesfully added.");
+                    ResetColor();
+                }
+                else
+                {
+                    ForegroundColor = ConsoleColor.Red;
+                    Products.Add(new Product(category, name, productPrice));
+                    Console.WriteLine($"The price has to be an integer, {price} is not.  ");
+                    Console.WriteLine("The product is added with price=0, use change price in the menu to correct it.");
+                    ResetColor();
+                  
+                }
+            }
 
 
         }
@@ -36,25 +65,59 @@ internal class ProductList
     }
     public void ShowProducts()
     {
-        WriteLine("Category".PadLeft(10) + "Product".PadLeft(10) + "Price".PadLeft(10));
-        foreach (Product prod in Products) 
+        List<Product> sortedProducts = sortList(Products);
+        ForegroundColor=ConsoleColor.Green;
+        WriteLine("Category".PadRight(30) + "Product".PadRight(30) + "Price");
+        ResetColor();
+        foreach (Product prod in sortedProducts) 
         {
             Console.WriteLine(PrintProduct(prod));
         }
-        
+        ForegroundColor = ConsoleColor.Blue;
+        WriteLine("".PadRight(30)+"Total amount:".PadRight(30)+Products.Sum(product=>product.Price));
+        ResetColor();
     }
     public void SearchProducts()
     {
-        WriteLine();
+        WriteLine("Enter product to search for: ");
+        string productToSearchFor = ReadLine();
+        int index = -1;
+        index=Products.FindIndex(product=>product.ProductName.Contains(productToSearchFor));
+        if (index < 0)
+        {
+            Console.WriteLine("The product was not found.");
+        }
+        else 
+        {
+            List<Product> sortedProducts = sortList(Products);
+            ForegroundColor = ConsoleColor.Green;
+            WriteLine("Category".PadRight(30) + "Product".PadRight(30) + "Price");
+            ResetColor();
+            int line= 0;
+            foreach (Product prod in sortedProducts)
+            {
+                if (line==index)
+                {
+                    ForegroundColor= ConsoleColor.Cyan;
+                }
+                Console.WriteLine(PrintProduct(prod));
+                ResetColor();
+            }
+            ForegroundColor = ConsoleColor.Blue;
+            WriteLine("".PadRight(30) + "Total amount:".PadRight(30) + Products.Sum(product => product.Price));
+            ResetColor();
+
+        }
     }
-    public void sumPrice()
+    public List<Product> sortList(List<Product> products)
     {
+       return  Products.OrderBy(product => product.Price).ToList();
 
     }
     public string PrintProduct(Product productToPrint)
     {
         
-        return $"{productToPrint.Category.PadLeft(10)} {productToPrint.ProductName.PadLeft(10)} {(productToPrint.Price).ToString().PadLeft(10)}";
+        return $"{productToPrint.Category.PadRight(30)}{productToPrint.ProductName.PadRight(30)}{(productToPrint.Price)}";
     }
 
 }
